@@ -1,10 +1,10 @@
 # BriefingGate
 
-> Turn two independent public notices into one attributable operational briefing.
+> **The Briefing Desk** · Two notices in. One attributable operational brief out.
 
 BriefingGate is a GenLayer Intelligent Contract for the moment between "we have received reports" and "we are ready to publish an operational brief." It does not ask a single operator to summarize the situation. Instead, it requires validators to independently retrieve two records, agree on a concise situation summary and actionable steps, then preserve the evidence digests behind the published result.
 
-## Why this exists
+## The newsroom problem
 
 Operational teams often receive fragmented notices from different publishers: an incident bulletin, a regulator update, an outage report, or a safety notice. A useful brief needs to be concise, but it must not silently turn one unverified report into an instruction.
 
@@ -16,7 +16,7 @@ BriefingGate creates a reusable gate:
 4. Store the source digests and move the brief to `SYNTHESIZED`.
 5. Let the owner publish the reviewed brief, or archive it if it should not proceed.
 
-## Contract lifecycle
+## From incoming signal to publishable copy
 
 ```text
 COLLECTING
@@ -30,7 +30,7 @@ PUBLISHED                          ARCHIVED
 
 The contract has no hidden "approved" shortcut. A brief cannot be published directly from collection, and an archived brief cannot be republished.
 
-## Public methods
+## Desk actions
 
 | Method | Who can call it | Purpose |
 | --- | --- | --- |
@@ -40,7 +40,7 @@ The contract has no hidden "approved" shortcut. A brief cannot be published dire
 | `archive_briefing` | Brief owner | Stops an unfinished brief. |
 | `get_briefing` | Anyone | Reads the evidence-backed state. |
 
-## What validators agree on
+## Fact-check protocol
 
 The contract does not accept a leader result just because it is valid JSON. Every validator re-fetches the notices and recomputes the fields that affect stored state:
 
@@ -50,7 +50,7 @@ The contract does not accept a leader result just because it is valid JSON. Ever
 
 For a result to be stored, the leader's summary, actions, and digests must match the validator's independently computed result. Both notice indexes must be present; one source alone cannot support a published briefing.
 
-## Safety boundaries
+## Editorial red lines
 
 - Duplicate briefing IDs are rejected after normalization.
 - Notice URLs must be normalized HTTPS URLs, with no credentials embedded.
@@ -62,7 +62,7 @@ For a result to be stored, the leader's summary, actions, and digests must match
 
 Different URLs are not automatically independent authorities. Deployers should choose sources with genuinely separate editorial or institutional control and should label any operator-created records as demo fixtures.
 
-## Quick start
+## A sample dispatch
 
 ```python
 contract.collect_briefing(
@@ -78,14 +78,14 @@ contract.publish_briefing("OPS-2026-001")
 
 Use `get_briefing("OPS-2026-001")` to retrieve the stored summary, actions, original URLs, and digests.
 
-## Local verification
+## Copy desk checks
 
 ```bash
 PYTHONUTF8=1 genvm-lint contracts/contract.py
 python -m pytest -q
 ```
 
-## Deployment
+## Where the desk is live
 
 | Network | Contract |
 | --- | --- |
